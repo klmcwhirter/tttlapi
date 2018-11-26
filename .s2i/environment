@@ -1,0 +1,6 @@
+# See https://docs.openshift.com/dedicated/using_images/s2i_images/dot_net_core.html
+DOTNET_STARTUP_PROJECT=tttlapi/tttlapi.csproj
+DOTNET_TEST_PROJECTS=
+DOTNET_PUBLISH=true
+DOTNET_CONFIGURATION=Debug
+ASPNETCORE_URLS=http://*:8080
