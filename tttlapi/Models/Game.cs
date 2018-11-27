@@ -166,40 +166,25 @@ namespace tttlapi.Models
     /// </summary>
     public static class GameExtensions
     {
-
         /// <summary>
-        /// Finalize the game setting the appropriate state
+        /// The way to win in Tic Tac Toe
         /// </summary>
-        /// <returns>Game</returns>
-        public static Game CompleteGame(this Game game)
-        {
-            if (!game.Complete)
-            {
-                if (game.IsComplete())
-                {
-                    game.EndDate = DateTime.Now;
-
-                    // Board is full - tie
-                    if (game.IsBoardFull())
-                    {
-                        game.Result = GameResult.Tie;
-                    }
-
-                    // TODO: detect winner
-                }
-            }
-            return game;
-        }
-
-        /// <summary>
-        /// Detects if the game has a winner
-        /// </summary>
-        public static bool HasWinner(this Game game)
-        {
-            var rc = false;
-
-            return rc;
-        }
+        /// <value>IEnumerable&lt;int[]&gt;</value>
+        public static readonly IEnumerable<int[]> WaysToWin = new[] {
+            // rows
+            new[] { 0, 1, 2 },
+            new[] { 3, 4, 5 },
+            new[] { 6, 7, 8 },
+            
+            // cols
+            new[] { 0, 3, 6 },
+            new[] { 1, 4, 7 },
+            new[] { 2, 5, 8 },
+            
+            // diagonals
+            new[] { 0, 4, 8 },
+            new[] { 2, 4, 6 }
+        };
 
         /// <summary>
         /// Are all cells occupied?
@@ -215,20 +200,68 @@ namespace tttlapi.Models
         public static bool IsCellOccupied(this Game game, Move move) => game.Moves.Any(m => m.X == move.X && m.Y == move.Y);
 
         /// <summary>
-        /// Detects if the game is complete
-        /// </summary>
-        /// <returns>bool</returns>
-        public static bool IsComplete(this Game game) => game.Complete || game.IsBoardFull() || game.HasWinner();
-
-        /// <summary>
         /// Determine the next player
         /// </summary>
+        /// <param name="game">Game</param>
         /// <param name="curr">Current PlayerIndex</param>
         /// <returns>PlayerIndex</returns>
         public static PlayerIndex NextPlayer(this Game game, PlayerIndex curr)
         {
             var rc = curr == PlayerIndex.X ? PlayerIndex.O : PlayerIndex.X;
             return rc;
+        }
+
+        /// <summary>
+        /// Translate Moves to a vector representing the board with the pieces placed
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <returns>int?[]</returns>
+        public static int?[] ToVector(this Game game)
+        {
+            var rc = new int?[9];
+            game.Moves.ForEach(m => rc[m.Y * 3 + m.X] = (int)m.PlayerIndex);
+            return rc;
+        }
+
+        /// <summary>
+        /// Finalize the game setting the appropriate state
+        /// </summary>
+        /// <returns>Game</returns>
+        public static Game TryCompleteGame(this Game game)
+        {
+            void CompleteGame(Game g, GameResult result)
+            {
+                g.Complete = true;
+                g.EndDate = DateTime.Now;
+                g.Result = result;
+            }
+
+            if (!game.Complete)
+            {
+                // Board is full - tie
+                if (game.IsBoardFull())
+                {
+                    CompleteGame(game, GameResult.Tie);
+                }
+                else
+                {
+                    var striped = new StripedVector<int?>(WaysToWin, game.ToVector());
+                    foreach (var stripe in striped)
+                    {
+                        if (stripe.All(s => s == (int)PlayerIndex.X))
+                        {
+                            CompleteGame(game, GameResult.XWins);
+                            break;
+                        }
+                        else if (stripe.All(s => s == (int)PlayerIndex.O))
+                        {
+                            CompleteGame(game, GameResult.OWins);
+                            break;
+                        }
+                    }
+                }
+            }
+            return game;
         }
     }
 }

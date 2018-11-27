@@ -141,10 +141,7 @@ namespace tttlapi.Repositories
                 throw new Exception($"Cell is occupied: x={move.X}, y={move.Y}");
             }
 
-            if (game.IsComplete())
-            {
-                game.CompleteGame();
-            }
+            game.TryCompleteGame();
 
             return game;
         }

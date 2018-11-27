@@ -31,7 +31,7 @@ namespace tttlapi.Strategies
             Move move = null;
 
             // Don't attempt if game is complete
-            if (!game.IsComplete())
+            if (!game.Complete)
             {
                 do
                 {

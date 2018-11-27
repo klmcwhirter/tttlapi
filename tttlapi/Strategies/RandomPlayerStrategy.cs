@@ -27,11 +27,10 @@ namespace tttlapi.Strategies
         /// <returns>Move</returns>
         public Move AutomateTurn(PlayerIndex playerIndex, Game game)
         {
-            // TODO: implement actual rules
             Move move = null;
 
             // Don't attempt if game is complete
-            if (!game.IsComplete())
+            if (!game.Complete)
             {
                 do
                 {
