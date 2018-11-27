@@ -120,13 +120,13 @@ namespace tttlapi.Repositories
         public Game RecordMove(long id, Move move)
         {
             var game = Get(id);
-            if (game != null)
+            if (game == null)
             {
                 throw new Exception("Game not found.");
             }
 
             // Games that are complete are imumtable
-            if (!game.Complete)
+            if (game.Complete)
             {
                 throw new Exception("Game is complete");
             }
