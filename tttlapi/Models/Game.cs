@@ -145,10 +145,10 @@ namespace tttlapi.Models
         /// <value>DateTime</value>
         public DateTime StartDate { get; set; }
         /// <summary>
-        /// Timestamp of when the game ended or DateTime.MinValue
+        /// Timestamp of when the game ended or null
         /// </summary>
         /// <value>DateTime</value>
-        public DateTime EndDate { get; set; } = DateTime.MinValue;
+        public DateTime? EndDate { get; set; } = null;
         /// <summary>
         /// Flag specifying whether the game is complete or not
         /// </summary>
