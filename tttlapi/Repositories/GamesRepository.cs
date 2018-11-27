@@ -120,16 +120,28 @@ namespace tttlapi.Repositories
         public Game RecordMove(long id, Move move)
         {
             var game = Get(id);
-            if (game != null
-                // Games that are complete are imumtable
-                && !game.Complete
-                // Disallow placement of a piece in a cell that is already occupied
-                && !game.IsCellOccupied(move))
+            if (game != null)
+            {
+                throw new Exception("Game not found.");
+            }
+
+            // Games that are complete are imumtable
+            if (!game.Complete)
+            {
+                throw new Exception("Game is complete");
+            }
+
+            // Disallow placement of a piece in a cell that is already occupied
+            if (!game.IsCellOccupied(move))
             {
                 game.Moves.Add(move);
             }
+            else
+            {
+                throw new Exception($"Cell is occupied: x={move.X}, y={move.Y}");
+            }
 
-            if(game.IsComplete())
+            if (game.IsComplete())
             {
                 game.CompleteGame();
             }

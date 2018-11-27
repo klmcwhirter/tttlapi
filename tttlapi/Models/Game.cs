@@ -78,6 +78,12 @@ namespace tttlapi.Models
     public class Player
     {
         /// <summary>
+        /// Player number
+        /// </summary>
+        /// <value>int</value>
+        public int Number { get; set; }
+
+        /// <summary>
         /// The name of the player
         /// </summary>
         /// <value>string</value>
