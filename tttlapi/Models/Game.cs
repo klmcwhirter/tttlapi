@@ -224,45 +224,55 @@ namespace tttlapi.Models
         }
 
         /// <summary>
+        /// Determine the result if the game were to end right now
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <returns>GameResult</returns>
+        public static GameResult TryGetCurrentGameResult(this Game game)
+        {
+            var rc = GameResult.None;
+
+            var striped = new StripedVector<int?>(WaysToWin, game.ToVector());
+            foreach (var stripe in striped)
+            {
+                if (stripe.All(s => s == (int)PlayerIndex.X))
+                {
+                    rc = GameResult.XWins;
+                    break;
+                }
+                else if (stripe.All(s => s == (int)PlayerIndex.O))
+                {
+                    rc = GameResult.OWins;
+                    break;
+                }
+            }
+
+            // Board is full - tie
+            if (rc == GameResult.None && game.IsBoardFull())
+            {
+                rc = GameResult.Tie;
+            }
+
+            return rc;
+        }
+
+        /// <summary>
         /// Finalize the game setting the appropriate state
         /// </summary>
         /// <returns>Game</returns>
         public static Game TryCompleteGame(this Game game)
         {
-            void CompleteGame(Game g, GameResult result)
-            {
-                g.Complete = true;
-                g.EndDate = DateTime.Now;
-                g.Result = result;
-            }
-
             if (!game.Complete)
             {
-                // Board is full - tie
-                if (!game.IsBoardFull())
+                var result = game.TryGetCurrentGameResult();
+                if (result > GameResult.None)
                 {
-                    var striped = new StripedVector<int?>(WaysToWin, game.ToVector());
-                    foreach (var stripe in striped)
-                    {
-                        if (stripe.All(s => s == (int)PlayerIndex.X))
-                        {
-                            CompleteGame(game, GameResult.XWins);
-                            break;
-                        }
-                        else if (stripe.All(s => s == (int)PlayerIndex.O))
-                        {
-                            CompleteGame(game, GameResult.OWins);
-                            break;
-                        }
-                    }
+                    game.Complete = true;
+                    game.EndDate = DateTime.Now;
+                    game.Result = result;
                 }
-                else
-                {
-                    // Board is full
-                    CompleteGame(game, GameResult.Tie);
-                }
-
             }
+
             return game;
         }
     }

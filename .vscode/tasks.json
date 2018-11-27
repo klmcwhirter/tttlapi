@@ -10,6 +10,16 @@
                 "${workspaceFolder}/tttlapi/tttlapi.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "tttlapi.Tests"
+            ],
+            "problemMatcher": "$msCompile"
         }
     ]
 }
