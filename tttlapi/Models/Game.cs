@@ -239,11 +239,7 @@ namespace tttlapi.Models
             if (!game.Complete)
             {
                 // Board is full - tie
-                if (game.IsBoardFull())
-                {
-                    CompleteGame(game, GameResult.Tie);
-                }
-                else
+                if (!game.IsBoardFull())
                 {
                     var striped = new StripedVector<int?>(WaysToWin, game.ToVector());
                     foreach (var stripe in striped)
@@ -260,6 +256,12 @@ namespace tttlapi.Models
                         }
                     }
                 }
+                else
+                {
+                    // Board is full
+                    CompleteGame(game, GameResult.Tie);
+                }
+
             }
             return game;
         }
