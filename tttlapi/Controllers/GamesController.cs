@@ -53,7 +53,7 @@ namespace tttlapi.Controllers
         /// <param name="id">id of the game</param>
         /// <returns>Game</returns>
         [HttpGet("{id}")]
-        public Game Get(long id)
+        public Game Get(int id)
         {
             var game = GamesRepository.Get(id);
             return game;
@@ -86,7 +86,7 @@ namespace tttlapi.Controllers
         /// <param name="id">id of the game</param>
         /// <returns>Game</returns>
         [HttpPatch("{id}/end")]
-        public Game End(long id)
+        public Game End(int id)
         {
             var game = GamesRepository.End(id);
             return game;
@@ -98,7 +98,7 @@ namespace tttlapi.Controllers
         /// <param name="id">Id of the value to patch</param>
         /// <param name="move">the move</param>
         [HttpPatch("{id}/move")]
-        public Game Move(long id, [FromBody]Move move)
+        public Game Move(int id, [FromBody]Move move)
         {
             var game = GamesRepository.RecordMove(id, move);
 

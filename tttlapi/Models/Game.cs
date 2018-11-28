@@ -127,8 +127,8 @@ namespace tttlapi.Models
         /// <summary>
         /// Unique identifier for the game
         /// </summary>
-        /// <value>long</value>
-        public long Id { get; set; }
+        /// <value>int</value>
+        public int Id { get; set; }
         /// <summary>
         /// The list of moves at this point in the game
         /// </summary>

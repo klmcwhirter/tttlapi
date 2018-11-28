@@ -15,7 +15,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.PlatformAbstractions;
 using Swashbuckle.AspNetCore.Swagger;
 using tttlapi.Repositories;
+using tttlapi.Services;
 using tttlapi.Strategies;
+using tttlapi.Utils;
 
 namespace tttlapi
 {
@@ -78,13 +80,10 @@ namespace tttlapi
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterType<GamesRepository>().As<IGamesRepository>().SingleInstance();
-
-            // Register PlayerKind strategies - registered in order of Playerkind enum
-            builder.RegisterType<HumanPlayerStrategy>().As<IPlayerStrategy>();
-            builder.RegisterType<RulesPlayerStrategy>().As<IPlayerStrategy>();
-            builder.RegisterType<LearningPlayerStrategy>().As<IPlayerStrategy>();
-            builder.RegisterType<RandomPlayerStrategy>().As<IPlayerStrategy>();
+            builder.RegisterRedis(Configuration);
+            builder.RegisterRepositories(Configuration);
+            builder.RegisterServices();
+            builder.RegisterStrategies();
 
             builder.Populate(services);
             var rc = builder.Build();

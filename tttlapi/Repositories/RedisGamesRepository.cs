@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ServiceStack.Redis;
 using tttlapi.Models;
+using tttlapi.Services;
 
 namespace tttlapi.Repositories
 {
@@ -9,12 +11,45 @@ namespace tttlapi.Repositories
     /// <summary>
     /// Default implementation of the GameRepository
     /// </summary>
-    public class GamesRepository : IGamesRepository
+    public class RedisGamesRepository : IGamesRepository
     {
         /// <summary>
-        /// In-memory storage for the games
+        /// Redis prefix for Games
         /// </summary>
-        protected List<Game> Games { get; set; } = new List<Game>();
+        protected string GamesPrefix = "urn:games";
+
+        /// <summary>
+        /// The RedisClient needed to interact with the db
+        /// </summary>
+        /// <value>IRedisClient</value>
+        protected IRedisClient RedisClient { get; }
+
+        /// <summary>
+        /// Transform JSON to Game
+        /// </summary>
+        protected ITransformer<string, Game> JsonToGameTransformer { get; }
+
+        /// <summary>
+        /// Transform Game to JSON
+        /// </summary>
+        protected ITransformer<Game, string> JsonFromGameTransformer { get; }
+
+        /// <summary>
+        /// Constuct RedisGamesRepository
+        /// </summary>
+        /// <param name="redisClient">IRedisClient</param>
+        /// <param name="jsonToGameTransformer"></param>
+        /// <param name="jsonFromGameTransformer"></param>
+        public RedisGamesRepository(
+            IRedisClient redisClient,
+            ITransformer<string, Game> jsonToGameTransformer,
+            ITransformer<Game, string> jsonFromGameTransformer
+            )
+        {
+            RedisClient = redisClient;
+            JsonToGameTransformer = jsonToGameTransformer;
+            JsonFromGameTransformer = jsonFromGameTransformer;
+        }
 
         /// <summary>
         /// Get all the games
@@ -22,7 +57,9 @@ namespace tttlapi.Repositories
         /// <returns>Game[]</returns>
         public Game[] GetAll()
         {
-            return Games.ToArray();
+            var json = RedisClient.GetAllItemsFromList(GamesPrefix);
+            var rc = json.Select(j => JsonToGameTransformer.Transform(j));
+            return rc.ToArray();
         }
 
         /// <summary>
@@ -32,7 +69,9 @@ namespace tttlapi.Repositories
         /// <returns>Game</returns>
         public Game Get(int id)
         {
-            return Games.FirstOrDefault(g => g.Id == id);
+            var json = RedisClient.GetItemFromList(GamesPrefix, id);
+            var rc = JsonToGameTransformer.Transform(json);
+            return rc;
         }
 
         /// <summary>
@@ -42,16 +81,18 @@ namespace tttlapi.Repositories
         /// <returns>Game</returns>
         public Game Start(Player[] players)
         {
+            var id = (int)RedisClient.GetListCount(GamesPrefix);
             var game = new Game
             {
-                Id = Games.Count + 1,
+                Id = id,
                 Players = players,
                 StartDate = DateTime.Now,
                 Complete = false,
                 Result = GameResult.None
             };
 
-            Games.Add(game);
+            var json = JsonFromGameTransformer.Transform(game);
+            RedisClient.AddItemToList(GamesPrefix, json);
 
             return game;
         }
@@ -70,6 +111,9 @@ namespace tttlapi.Repositories
             {
                 game.EndDate = DateTime.Now;
                 game.Complete = true;
+
+                var json = JsonFromGameTransformer.Transform(game);
+                RedisClient.SetItemInList(GamesPrefix, id, json);
             }
 
             return game;
@@ -105,7 +149,10 @@ namespace tttlapi.Repositories
                 throw new Exception($"Cell is occupied: x={move.X}, y={move.Y}");
             }
 
-            game.TryCompleteGame();
+            game = game.TryCompleteGame();
+
+            var json = JsonFromGameTransformer.Transform(game);
+            RedisClient.SetItemInList(GamesPrefix, id, json);
 
             return game;
         }
