@@ -34,16 +34,21 @@ namespace tttlapi.Models
         public PlayerIndex PlayerIndex { get; set; }
 
         /// <summary>
-        /// The x coord on the board where the piece was placed
+        /// The spot on the board where the piece was placed
         /// </summary>
         /// <value>int</value>
-        public int X { get; set; }
-
-        /// <summary>
-        /// The y coord on the board where the piece was placed
-        /// </summary>
-        /// <value>int</value>
-        public int Y { get; set; }
+        /// <remarks>
+        /// x=> 0   1   2   y
+        ///                 |
+        ///   +---+---+---+ v
+        ///   | 0 | 1 | 2 | 0
+        ///   +---+---+---+
+        ///   | 3 | 4 | 5 | 1
+        ///   +---+---+---+
+        ///   | 6 | 7 | 8 | 2
+        ///   +---+---+---+
+        /// </remarks>
+        public int Spot { get; set; }
     }
 
     /// <summary>
@@ -197,7 +202,7 @@ namespace tttlapi.Models
         /// <param name="game">Game</param>
         /// <param name="move">Move to test</param>
         /// <returns>bool</returns>
-        public static bool IsCellOccupied(this Game game, Move move) => game.Moves.Any(m => m.X == move.X && m.Y == move.Y);
+        public static bool IsSpotOccupied(this Game game, Move move) => game.Moves.Any(m => m.Spot == move.Spot);
 
         /// <summary>
         /// Determine the next player
@@ -219,7 +224,7 @@ namespace tttlapi.Models
         public static int?[] ToVector(this Game game)
         {
             var rc = new int?[9];
-            game.Moves.ForEach(m => rc[m.Y * 3 + m.X] = (int)m.PlayerIndex);
+            game.Moves.ForEach(m => rc[m.Spot] = (int)m.PlayerIndex);
             return rc;
         }
 

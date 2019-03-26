@@ -38,10 +38,9 @@ namespace tttlapi.Strategies
                     move = new Move
                     {
                         PlayerIndex = playerIndex,
-                        X = Random.Next(3),
-                        Y = Random.Next(3)
+                        Spot = Random.Next(9)
                     };
-                } while (game.IsCellOccupied(move));
+                } while (game.IsSpotOccupied(move));
             }
 
             return move;

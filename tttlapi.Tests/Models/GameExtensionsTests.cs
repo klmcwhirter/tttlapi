@@ -17,7 +17,7 @@ namespace tttlapi.Tests
 
             Assert.False(rc);
 
-            Enumerable.Range(0, 8).ToList().ForEach(i => game.Moves.Add(new Move()));
+            Enumerable.Range(0, 9-1).ToList().ForEach(i => game.Moves.Add(new Move()));
             rc = game.IsBoardFull();
 
             Assert.False(rc);
@@ -36,25 +36,25 @@ namespace tttlapi.Tests
 
         #endregion
 
-        #region IsCellOccupied
+        #region IsSpotOccupied
 
         [Fact]
-        public void IsCellOccupiedReturnsFalseWhenNoMoves()
+        public void IsSpotOccupiedReturnsFalseWhenNoMoves()
         {
             var game = new Game();
 
-            var rc = game.IsCellOccupied(new Move { X = 1, Y = 1 });
+            var rc = game.IsSpotOccupied(new Move { Spot = 4 });
 
             Assert.False(rc);
         }
 
         [Fact]
-        public void IsCellOccupiedReturnsTrueWhenItIs()
+        public void IsSpotOccupiedReturnsTrueWhenItIs()
         {
             var game = new Game();
-            game.Moves.Add(new Move { X = 1, Y = 1 });
+            game.Moves.Add(new Move { Spot = 4 });
 
-            var rc = game.IsCellOccupied(new Move { X = 1, Y = 1 });
+            var rc = game.IsSpotOccupied(new Move { Spot = 4 });
 
             Assert.True(rc);
         }
@@ -119,8 +119,7 @@ namespace tttlapi.Tests
                         new Move
                         {
                             PlayerIndex = togglePlayerIndex(),
-                            X = x,
-                            Y = y
+                            Spot = y * 3 + x
                         });
                 }
             }
@@ -155,15 +154,15 @@ namespace tttlapi.Tests
             var game = new Game();
             game.Moves.AddRange(new Move[]
             {
-                new Move { PlayerIndex = PlayerIndex.X, X = 0, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.O, X = 0, Y = 2},
-                new Move { PlayerIndex = PlayerIndex.X, X = 2, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.O, X = 2, Y = 2},
-                new Move { PlayerIndex = PlayerIndex.X, X = 1, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.O, X = 2, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.X, X = 1, Y = 2},
-                new Move { PlayerIndex = PlayerIndex.O, X = 1, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.X, X = 0, Y = 1}
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 0},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 6},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 2},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 8},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 4},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 5},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 7},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 1},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 3}
             });
 
             var rc = game.TryGetCurrentGameResult();
@@ -177,9 +176,9 @@ namespace tttlapi.Tests
             var game = new Game();
             game.Moves.AddRange(new Move[]
             {
-                new Move { PlayerIndex = PlayerIndex.X, X = 0, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.X, X = 1, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.X, X = 2, Y = 2}
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 0},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 4},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 8}
             });
 
             var rc = game.TryGetCurrentGameResult();
@@ -193,12 +192,12 @@ namespace tttlapi.Tests
             var game = new Game();
             game.Moves.AddRange(new Move[]
             {
-                new Move { PlayerIndex = PlayerIndex.X, X = 1, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.O, X = 0, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.X, X = 2, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.O, X = 1, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.X, X = 2, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.O, X = 2, Y = 2}
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 1},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 0},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 2},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 4},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 5},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 8}
             });
 
             var rc = game.TryGetCurrentGameResult();
@@ -212,15 +211,15 @@ namespace tttlapi.Tests
             var game = new Game();
             game.Moves.AddRange(new Move[]
             {
-                new Move { PlayerIndex = PlayerIndex.X, X = 0, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.O, X = 2, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.X, X = 1, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.O, X = 2, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.X, X = 1, Y = 2},
-                new Move { PlayerIndex = PlayerIndex.O, X = 1, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.X, X = 0, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.O, X = 0, Y = 2},
-                new Move { PlayerIndex = PlayerIndex.X, X = 2, Y = 2}
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 0},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 2},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 4},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 5},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 7},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 1},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 3},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 6},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 8}
             });
 
             var rc = game.TryGetCurrentGameResult();
@@ -255,9 +254,9 @@ namespace tttlapi.Tests
             var game = new Game();
             game.Moves.AddRange(new Move[]
             {
-                new Move { PlayerIndex = PlayerIndex.X, X = 0, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.X, X = 1, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.X, X = 2, Y = 2}
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 0},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 4},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 8}
             });
 
             Assert.False(game.Complete);
@@ -278,15 +277,15 @@ namespace tttlapi.Tests
             var game = new Game();
             game.Moves.AddRange(new Move[]
             {
-                new Move { PlayerIndex = PlayerIndex.X, X = 0, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.O, X = 0, Y = 2},
-                new Move { PlayerIndex = PlayerIndex.X, X = 2, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.O, X = 2, Y = 2},
-                new Move { PlayerIndex = PlayerIndex.X, X = 1, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.O, X = 2, Y = 1},
-                new Move { PlayerIndex = PlayerIndex.X, X = 1, Y = 2},
-                new Move { PlayerIndex = PlayerIndex.O, X = 1, Y = 0},
-                new Move { PlayerIndex = PlayerIndex.X, X = 0, Y = 1}
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 0},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 6},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 2},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 8},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 4},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 5},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 7},
+                new Move { PlayerIndex = PlayerIndex.O, Spot = 1},
+                new Move { PlayerIndex = PlayerIndex.X, Spot = 3}
             });
 
             Assert.False(game.Complete);

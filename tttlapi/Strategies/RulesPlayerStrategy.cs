@@ -9,17 +9,6 @@ namespace tttlapi.Strategies
     public class RulesPlayerStrategy : IPlayerStrategy
     {
         /// <summary>
-        /// Seeded instance of Random
-        /// </summary>
-        /// <value>Random</value>
-        protected static Random Random { get; }
-
-        static RulesPlayerStrategy()
-        {
-            Random = new Random((int)DateTime.Now.Ticks);
-        }
-
-        /// <summary>
         /// Automate turn
         /// </summary>
         /// <param name="playerIndex">index of the player in the players array</param>
@@ -38,10 +27,9 @@ namespace tttlapi.Strategies
                     move = new Move
                     {
                         PlayerIndex = playerIndex,
-                        X = Random.Next(3),
-                        Y = Random.Next(3)
+                        Spot = 0 // Random.Next(9)
                     };
-                } while (game.IsCellOccupied(move));
+                } while (game.IsSpotOccupied(move));
             }
 
             return move;
@@ -52,5 +40,27 @@ namespace tttlapi.Strategies
         /// </summary>
         /// <returns>bool</returns>
         public bool CanAutomateTurn() => true;
+    }
+
+    /// <summary>
+    /// Desribes potential locations on a Tic Tac Toe board
+    /// </summary>
+    public enum Location
+    {
+        Corner,
+        Side,
+        Center
+    }
+
+    /// <summary>
+    /// Describes a game offensive or defensive rule
+    /// </summary>
+    public class Rule {
+        /// <summary>
+        /// Predicate to detect opponent's position
+        /// </summary>
+        /// <value>location to be used to tune next move</value>
+        public Func<Game, Location> OpponentPredicate { get; set; }
+        public Func<Game, Move> PiecePlacement { get; set; }
     }
 }

@@ -96,13 +96,13 @@ namespace tttlapi.Repositories
             }
 
             // Disallow placement of a piece in a cell that is already occupied
-            if (!game.IsCellOccupied(move))
+            if (!game.IsSpotOccupied(move))
             {
                 game.Moves.Add(move);
             }
             else
             {
-                throw new Exception($"Cell is occupied: x={move.X}, y={move.Y}");
+                throw new Exception($"Cell is occupied: spot={move.Spot}");
             }
 
             game.TryCompleteGame();
