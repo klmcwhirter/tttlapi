@@ -36,7 +36,7 @@ namespace tttlapi.Strategies
                 do
                 {
                     spot = Random.Next(9);
-                } while (game.IsSpotOccupied(move.Spot));
+                } while (game.IsSpotOccupied(spot));
 
                 move = new Move
                 {
