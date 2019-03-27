@@ -43,7 +43,7 @@ namespace tttlapi.Tests
         {
             var game = new Game();
 
-            var rc = game.IsSpotOccupied(new Move { Spot = 4 });
+            var rc = game.IsSpotOccupied(4);
 
             Assert.False(rc);
         }
@@ -54,7 +54,7 @@ namespace tttlapi.Tests
             var game = new Game();
             game.Moves.Add(new Move { Spot = 4 });
 
-            var rc = game.IsSpotOccupied(new Move { Spot = 4 });
+            var rc = game.IsSpotOccupied(4);
 
             Assert.True(rc);
         }

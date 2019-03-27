@@ -140,7 +140,7 @@ namespace tttlapi.Repositories
             }
 
             // Disallow placement of a piece in a cell that is already occupied
-            if (!game.IsSpotOccupied(move))
+            if (!game.IsSpotOccupied(move.Spot))
             {
                 game.Moves.Add(move);
             }

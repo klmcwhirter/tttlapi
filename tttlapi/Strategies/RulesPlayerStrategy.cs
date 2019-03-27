@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using tttlapi.Models;
 
 namespace tttlapi.Strategies
@@ -16,20 +18,14 @@ namespace tttlapi.Strategies
         /// <returns>Move</returns>
         public Move AutomateTurn(PlayerIndex playerIndex, Game game)
         {
-            // TODO: implement actual rules
             Move move = null;
 
             // Don't attempt if game is complete
             if (!game.Complete)
             {
-                do
-                {
-                    move = new Move
-                    {
-                        PlayerIndex = playerIndex,
-                        Spot = 0 // Random.Next(9)
-                    };
-                } while (game.IsSpotOccupied(move));
+                move = Rules[(int)playerIndex]
+                .FirstOrDefault(r => r.ShouldTryPlacePiece(playerIndex, game))
+                .TryPlacePiece(playerIndex, game);
             }
 
             return move;
@@ -40,27 +36,66 @@ namespace tttlapi.Strategies
         /// </summary>
         /// <returns>bool</returns>
         public bool CanAutomateTurn() => true;
-    }
 
-    /// <summary>
-    /// Desribes potential locations on a Tic Tac Toe board
-    /// </summary>
-    public enum Location
-    {
-        Corner,
-        Side,
-        Center
+        #region Rules
+
+        /// <summary>
+        /// The rules defining the strategy
+        /// </summary>
+        /// <value>List&lt;Rule[]&gt;</value>
+        protected static List<Rule[]> Rules = new List<Rule[]>
+        {
+            // PlayerIndex.X - offensive rules
+            new[]
+            {
+                // If no moves yet, place in a corner
+                new Rule { ShouldTryPlacePiece = (p,g) => g.Moves.Count <= 0, TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Corner)},
+
+                // try to find winning move
+                new Rule { ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindWinningMove(p)},
+
+                // If O places first on a side - X places in center; then places in adjacent corner after any O move
+                new Rule {
+                    ShouldTryPlacePiece = (p,g) => g.Moves.FirstOrDefault(m => m.PlayerIndex == PlayerIndex.O).Is(BoardLocation.Side),
+                    TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Center) ?? g.FindEmptySpot(p, BoardLocation.Corner)
+                    },
+
+                // if O places first in an adjacent corner - X places in the other adjacent corner; then other corner
+                new Rule {
+                    ShouldTryPlacePiece = (p,g) => g.Moves.FirstOrDefault(m => m.PlayerIndex == PlayerIndex.O).Is(BoardLocation.Corner),
+                    TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Corner)
+                    },
+
+
+                // fllbck - random spot
+                new Rule { ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindRandomEmptySpot(p)},
+            },
+
+            // PlayerIndex.O - defensive rules
+            new[]
+            {
+                // First try to find winning move
+                new Rule { ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindWinningMove(p)},
+
+            }
+        };
+        #endregion
     }
 
     /// <summary>
     /// Describes a game offensive or defensive rule
     /// </summary>
-    public class Rule {
+    public class Rule
+    {
         /// <summary>
         /// Predicate to detect opponent's position
         /// </summary>
         /// <value>location to be used to tune next move</value>
-        public Func<Game, Location> OpponentPredicate { get; set; }
-        public Func<Game, Move> PiecePlacement { get; set; }
+        public Func<PlayerIndex, Game, bool> ShouldTryPlacePiece { get; set; }
+        /// <summary>
+        /// Try to place a piece
+        /// </summary>
+        /// <value>Move or null</value>
+        public Func<PlayerIndex, Game, Move> TryPlacePiece { get; set; }
     }
 }

@@ -33,14 +33,17 @@ namespace tttlapi.Strategies
             // Don't attempt if game is complete
             if (!game.Complete)
             {
+                var spot = 0;
                 do
                 {
-                    move = new Move
-                    {
-                        PlayerIndex = playerIndex,
-                        Spot = Random.Next(9)
-                    };
-                } while (game.IsSpotOccupied(move));
+                    spot = Random.Next(9);
+                } while (game.IsSpotOccupied(move.Spot));
+
+                move = new Move
+                {
+                    PlayerIndex = playerIndex,
+                    Spot = spot
+                };
             }
 
             return move;
