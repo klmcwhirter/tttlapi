@@ -93,7 +93,6 @@ namespace tttlapi.Strategies
                     TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Corner)
                     },
 
-
                 // fallbck - random spot
                 new Rule { Name = "Fallback random", ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindRandomEmptySpot(p)},
             },
@@ -104,6 +103,8 @@ namespace tttlapi.Strategies
                 // First try to find winning move
                 new Rule { ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindWinningMove(p)},
 
+                // fallbck - random spot
+                new Rule { Name = "Fallback random", ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindRandomEmptySpot(p)},
             }
         };
 
