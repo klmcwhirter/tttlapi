@@ -42,7 +42,7 @@ namespace tttlapi.Tests
             var ct = 0;
             sv.ForEach(s =>
             {
-                Assert.All(s, e => Assert.Equal(e, stripeDef[ct][int.Parse(e)].ToString()));
+                Assert.All(s, e => Assert.Equal(e.Value, stripeDef[ct][int.Parse(e.Value)].ToString()));
             });
         }
 
@@ -74,9 +74,9 @@ namespace tttlapi.Tests
             var ct = 0;
             Assert.All(sv,
                 items => Assert.Collection(stripeDef[ct++],
-                                            e => Assert.Equal(e.ToString(), items[0]),
-                                            e => Assert.Equal(e.ToString(), items[1]),
-                                            e => Assert.Equal(e.ToString(), items[2])
+                                            e => Assert.Equal(e.ToString(), items[0].Value),
+                                            e => Assert.Equal(e.ToString(), items[1].Value),
+                                            e => Assert.Equal(e.ToString(), items[2].Value)
                                     )
             );
         }

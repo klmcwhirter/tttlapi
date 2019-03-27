@@ -260,9 +260,9 @@ namespace tttlapi.Models
         {
             Move rc = null;
 
-            if (!game.Complete)
+            if (!game.IsBoardFull())
             {
-                var spot = Enumerable.Range(0, 9).Select(i => Random.Next(9)).First(s => !game.IsSpotOccupied(s));
+                var spot = Enumerable.Range(0, 18).Select(i => Random.Next(9)).First(s => !game.IsSpotOccupied(s));
 
                 rc = new Move { PlayerIndex = playerIndex, Spot = spot };
             }
@@ -283,14 +283,13 @@ namespace tttlapi.Models
             foreach (var stripe in striped)
             {
                 // If stripe contains only player or empty AND at least 2 pieces have been placed
-                if (stripe.All(s => s == (int)playerIndex || !s.HasValue) && stripe.Count(s => s == (int)playerIndex) == 2)
+                if (stripe.All(s => s.Value == (int)playerIndex || !s.Value.HasValue) && stripe.Count(s => s.Value == (int)playerIndex) == 2)
                 {
-                    var spot = stripe.First(s => !s.HasValue);
-                    if (spot.HasValue)
-                    {
-                        rc = new Move { PlayerIndex = playerIndex, Spot = spot.Value };
-                        break;
-                    }
+                    // Get the index of the empty, winning spot
+                    var spot = stripe.First(s => !s.Value.HasValue).Key;
+
+                    rc = new Move { PlayerIndex = playerIndex, Spot = spot };
+                    break;
                 }
             }
 
@@ -346,12 +345,12 @@ namespace tttlapi.Models
             var striped = new StripedVector<int?>(WaysToWin, game.ToVector());
             foreach (var stripe in striped)
             {
-                if (stripe.All(s => s == (int)PlayerIndex.X))
+                if (stripe.All(s => s.Value == (int)PlayerIndex.X))
                 {
                     rc = GameResult.XWins;
                     break;
                 }
-                else if (stripe.All(s => s == (int)PlayerIndex.O))
+                else if (stripe.All(s => s.Value == (int)PlayerIndex.O))
                 {
                     rc = GameResult.OWins;
                     break;

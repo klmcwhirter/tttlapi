@@ -7,7 +7,7 @@ namespace tttlapi.Models
     /// Indexes IEnumerable&lt;T&gt; using stripes
     /// </summary>
     /// <typeparam name="T">The type present in the IEnumerable</typeparam>
-    public class StripedVector<T> : List<T[]>
+    public class StripedVector<T> : List<KeyValuePair<int,T>[]>
     {
         /// <summary>
         /// Contructs the StripedVector
@@ -20,10 +20,10 @@ namespace tttlapi.Models
 
             foreach (var stripeDef in stripeDefs)
             {
-                var item = new List<T>(stripeDef.Length);
+                var item = new List<KeyValuePair<int,T>>(stripeDef.Length);
                 foreach (var idx in stripeDef)
                 {
-                    item.Add(list[idx]);
+                    item.Add(KeyValuePair.Create(idx, list[idx]));
                 }
                 Add(item.ToArray());
             }
