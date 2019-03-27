@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using tttlapi.Models;
 
 namespace tttlapi.Strategies
@@ -10,6 +11,15 @@ namespace tttlapi.Strategies
     /// </summary>
     public class RulesPlayerStrategy : IPlayerStrategy
     {
+        /// <summary>
+        /// Ctor for RulesPlayerStrategy
+        /// </summary>
+        /// <param name="logger"></param>
+        public RulesPlayerStrategy(ILogger<RulesPlayerStrategy> logger)
+        {
+            Logger = logger;
+        }
+
         /// <summary>
         /// Automate turn
         /// </summary>
@@ -25,14 +35,20 @@ namespace tttlapi.Strategies
             {
                 foreach (var rule in Rules[(int)playerIndex])
                 {
-                    if(rule.ShouldTryPlacePiece(playerIndex, game))
+                    if (rule.ShouldTryPlacePiece(playerIndex, game))
                     {
+                        Logger.LogDebug($"Trying to place piece: {rule.Name}");
                         var triedMove = rule.TryPlacePiece(playerIndex, game);
-                        if(triedMove != null)
+                        if (triedMove != null)
                         {
+                            Logger.LogDebug($"Found move: {rule.Name}");
                             move = triedMove;
                             break;
                         }
+                    }
+                    else
+                    {
+                        Logger.LogDebug($"{rule.Name} could not handle move.");
                     }
                 }
             }
@@ -58,26 +74,28 @@ namespace tttlapi.Strategies
             new[]
             {
                 // If no moves yet, place in a corner
-                new Rule { ShouldTryPlacePiece = (p,g) => g.Moves.Count <= 0, TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Corner)},
+                new Rule { Name = "First move", ShouldTryPlacePiece = (p,g) => g.Moves.Count <= 0, TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Corner)},
 
                 // try to find winning move
-                new Rule { ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindWinningMove(p)},
+                new Rule { Name = "Try winning", ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindWinningMove(p)},
 
                 // If O places first on a side - X places in center; then places in adjacent corner after any O move
                 new Rule {
+                    Name = "If O side, try center else corner",
                     ShouldTryPlacePiece = (p,g) => g.Moves.FirstOrDefault(m => m.PlayerIndex == PlayerIndex.O).Is(BoardLocation.Side),
                     TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Center) ?? g.FindEmptySpot(p, BoardLocation.Corner)
                     },
 
                 // if O places first in an adjacent corner - X places in the other adjacent corner; then other corner
                 new Rule {
+                    Name = "If O places first in adjacent corner, place other else corner",
                     ShouldTryPlacePiece = (p,g) => g.Moves.FirstOrDefault(m => m.PlayerIndex == PlayerIndex.O).Is(BoardLocation.Corner),
                     TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Corner)
                     },
 
 
-                // fllbck - random spot
-                new Rule { ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindRandomEmptySpot(p)},
+                // fallbck - random spot
+                new Rule { Name = "Fallback random", ShouldTryPlacePiece = (p,g) => true, TryPlacePiece = (p,g) => g.FindRandomEmptySpot(p)},
             },
 
             // PlayerIndex.O - defensive rules
@@ -88,6 +106,8 @@ namespace tttlapi.Strategies
 
             }
         };
+
+        public ILogger<RulesPlayerStrategy> Logger { get; }
         #endregion
     }
 
@@ -96,6 +116,12 @@ namespace tttlapi.Strategies
     /// </summary>
     public class Rule
     {
+        /// <summary>
+        /// Name of the rule
+        /// </summary>
+        /// <value>string</value>
+        public string Name { get; set; }
+
         /// <summary>
         /// Predicate to detect opponent's position
         /// </summary>
