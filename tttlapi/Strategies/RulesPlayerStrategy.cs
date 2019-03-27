@@ -37,18 +37,18 @@ namespace tttlapi.Strategies
                 {
                     if (rule.ShouldTryPlacePiece(playerIndex, game))
                     {
-                        Logger.LogDebug($"Trying to place piece: {rule.Name}");
+                        Logger.LogInformation($"Trying to place piece: {rule.Name}");
                         var triedMove = rule.TryPlacePiece(playerIndex, game);
                         if (triedMove != null)
                         {
-                            Logger.LogDebug($"Found move: {rule.Name}");
+                            Logger.LogInformation($"Found move: {rule.Name}");
                             move = triedMove;
                             break;
                         }
                     }
                     else
                     {
-                        Logger.LogDebug($"{rule.Name} could not handle move.");
+                        Logger.LogInformation($"{rule.Name} could not handle move.");
                     }
                 }
             }
