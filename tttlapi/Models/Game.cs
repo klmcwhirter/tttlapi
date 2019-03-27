@@ -282,7 +282,8 @@ namespace tttlapi.Models
             var striped = new StripedVector<int?>(WaysToWin, game.ToVector());
             foreach (var stripe in striped)
             {
-                if (stripe.Count(s => s == (int)playerIndex) == 2)
+                // If stripe contains only player or empty AND at least 2 pieces have been placed
+                if (stripe.All(s => s == (int)playerIndex || !s.HasValue) && stripe.Count(s => s == (int)playerIndex) == 2)
                 {
                     var spot = stripe.First(s => !s.HasValue);
                     if (spot.HasValue)
