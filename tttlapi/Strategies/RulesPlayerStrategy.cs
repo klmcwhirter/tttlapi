@@ -23,9 +23,18 @@ namespace tttlapi.Strategies
             // Don't attempt if game is complete
             if (!game.Complete)
             {
-                move = Rules[(int)playerIndex]
-                .FirstOrDefault(r => r.ShouldTryPlacePiece(playerIndex, game))
-                .TryPlacePiece(playerIndex, game);
+                foreach (var rule in Rules[(int)playerIndex])
+                {
+                    if(rule.ShouldTryPlacePiece(playerIndex, game))
+                    {
+                        var triedMove = rule.TryPlacePiece(playerIndex, game);
+                        if(triedMove != null)
+                        {
+                            move = triedMove;
+                            break;
+                        }
+                    }
+                }
             }
 
             return move;
