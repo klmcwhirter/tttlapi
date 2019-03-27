@@ -131,7 +131,7 @@ namespace tttlapi.Controllers
         protected Game TakeTurns(PlayerIndex playerIndex, Game game)
         {
             var strategy = GetStrategy(playerIndex, game);
-            while (!game.Complete && strategy.CanAutomateTurn())
+            while (!game.IsBoardFull() && strategy.CanAutomateTurn())
             {
                 var move = strategy.AutomateTurn(playerIndex, game);
                 game = GamesRepository.RecordMove(game.Id, move);
