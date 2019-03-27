@@ -30,7 +30,7 @@ namespace tttlapi.Strategies
             Move move = null;
 
             // Don't attempt if game is complete
-            if (!game.Complete)
+            if (!game.IsBoardFull())
             {
                 var spot = 0;
                 do
