@@ -108,7 +108,11 @@ namespace tttlapi.Strategies
             }
         };
 
-        public ILogger<RulesPlayerStrategy> Logger { get; }
+        /// <summary>
+        /// Logger used by this class
+        /// </summary>
+        /// <value></value>
+        protected ILogger<RulesPlayerStrategy> Logger { get; }
         #endregion
     }
 

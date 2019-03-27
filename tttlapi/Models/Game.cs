@@ -27,9 +27,24 @@ namespace tttlapi.Models
     /// </summary>
     public enum BoardLocation
     {
+        /// <summary>
+        /// A corner of the board
+        /// </summary>
         Corner,
+
+        /// <summary>
+        /// A side of the board
+        /// </summary>
         Side,
+
+        /// <summary>
+        /// The center of the board
+        /// </summary>
         Center,
+
+        /// <summary>
+        /// Any location on the board
+        /// </summary>
         Any
     }
 
@@ -211,7 +226,8 @@ namespace tttlapi.Models
         {
             { BoardLocation.Center, new[] { 4 } },
             { BoardLocation.Corner, new[] { 0, 2, 6, 8}},
-            { BoardLocation.Side, new[] { 1, 3, 5, 7}}
+            { BoardLocation.Side, new[] { 1, 3, 5, 7}},
+            { BoardLocation.Any, Enumerable.Range(0, 9).ToArray() },
         };
 
         /// <summary>
