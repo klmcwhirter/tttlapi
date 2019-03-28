@@ -259,9 +259,9 @@ namespace tttlapi.Models
         /// <returns>Move or null</returns>
         public static Move FindEmptySpot(this Game game, PlayerIndex playerIndex, BoardLocation location)
         {
-            var spot = BoardLocationMap[location].Where(s => !game.IsSpotOccupied(s));
+            var spots = BoardLocationMap[location].Shuffle().Where(s => !game.IsSpotOccupied(s));
 
-            var rc = spot.Count() > 0 ? new Move { PlayerIndex = playerIndex, Spot = spot.First() } : null;
+            var rc = spots.Count() > 0 ? new Move { PlayerIndex = playerIndex, Spot = spots.First() } : null;
 
             return rc;
         }
@@ -278,9 +278,9 @@ namespace tttlapi.Models
 
             if (!game.IsBoardFull())
             {
-                var spot = Enumerable.Range(0, 18).Select(i => Random.Next(9)).First(s => !game.IsSpotOccupied(s));
+                var move = game.FindEmptySpot(playerIndex, BoardLocation.Any);
 
-                rc = new Move { PlayerIndex = playerIndex, Spot = spot };
+                rc = move;
             }
 
             return rc;
