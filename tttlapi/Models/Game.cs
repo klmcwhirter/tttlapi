@@ -22,32 +22,6 @@ namespace tttlapi.Models
         O = 1
     }
 
-    /// <summary>
-    /// Desribes potential locations on a Tic Tac Toe board
-    /// </summary>
-    public enum BoardLocation
-    {
-        /// <summary>
-        /// A corner of the board
-        /// </summary>
-        Corner,
-
-        /// <summary>
-        /// A side of the board
-        /// </summary>
-        Side,
-
-        /// <summary>
-        /// The center of the board
-        /// </summary>
-        Center,
-
-        /// <summary>
-        /// Any location on the board
-        /// </summary>
-        Any
-    }
-
 
     /// <summary>
     /// A move in the game is represented by a player and the coordinates on which they placed their piece.
@@ -76,24 +50,6 @@ namespace tttlapi.Models
         ///   +---+---+---+
         /// </remarks>
         public int Spot { get; set; }
-    }
-
-    /// <summary>
-    /// Extension methods for the Move type
-    /// </summary>
-    public static class MoveExtensions
-    {
-        /// <summary>
-        /// Is the current spot in this Move instance at BoardLocation
-        /// </summary>
-        /// <param name="move"></param>
-        /// <param name="location"></param>
-        /// <returns></returns>
-        public static bool Is(this Move move, BoardLocation location)
-        {
-            var rc = GameExtensions.BoardLocationMap[location].Contains(move.Spot);
-            return rc;
-        }
     }
 
     /// <summary>
@@ -216,20 +172,6 @@ namespace tttlapi.Models
     /// </summary>
     public static class GameExtensions
     {
-        static Random Random { get; } = new Random();
-
-        /// <summary>
-        /// Map of BoardLocation values to array of spots
-        /// </summary>
-        /// <value></value>
-        public static IDictionary<BoardLocation, int[]> BoardLocationMap = new Dictionary<BoardLocation, int[]>
-        {
-            { BoardLocation.Center, new[] { 4 } },
-            { BoardLocation.Corner, new[] { 0, 2, 6, 8}},
-            { BoardLocation.Side, new[] { 1, 3, 5, 7}},
-            { BoardLocation.Any, Enumerable.Range(0, 9).ToArray() },
-        };
-
         /// <summary>
         /// The way to win in Tic Tac Toe
         /// </summary>
@@ -249,68 +191,6 @@ namespace tttlapi.Models
             new[] { 0, 4, 8 },
             new[] { 2, 4, 6 }
         };
-
-        /// <summary>
-        /// Find an empty spot at a BoardLocation
-        /// </summary>
-        /// <param name="game">Game</param>
-        /// <param name="playerIndex">PlayerIndex</param>
-        /// <param name="location">BoardLocation</param>
-        /// <returns>Move or null</returns>
-        public static Move FindEmptySpot(this Game game, PlayerIndex playerIndex, BoardLocation location)
-        {
-            var spots = BoardLocationMap[location].Shuffle().Where(s => !game.IsSpotOccupied(s));
-
-            var rc = spots.Count() > 0 ? new Move { PlayerIndex = playerIndex, Spot = spots.First() } : null;
-
-            return rc;
-        }
-
-        /// <summary>
-        /// Find a random empty spot
-        /// </summary>
-        /// <param name="game">Game</param>
-        /// <param name="playerIndex">PlayerIndex</param>
-        /// <returns>Move or null</returns>
-        public static Move FindRandomEmptySpot(this Game game, PlayerIndex playerIndex)
-        {
-            Move rc = null;
-
-            if (!game.IsBoardFull())
-            {
-                var move = game.FindEmptySpot(playerIndex, BoardLocation.Any);
-
-                rc = move;
-            }
-
-            return rc;
-        }
-
-        /// <summary>
-        /// See if player has a winning move
-        /// </summary>
-        /// <param name="game">Game</param>
-        /// <param name="playerIndex">PlayerIndex</param>
-        /// <returns>Move or null</returns>
-        public static Move FindWinningMove(this Game game, PlayerIndex playerIndex)
-        {
-            Move rc = null;
-            var striped = new StripedVector<int?>(WaysToWin, game.ToVector());
-            foreach (var stripe in striped)
-            {
-                // If stripe contains only player or empty AND at least 2 pieces have been placed
-                if (stripe.All(s => s.Value == (int)playerIndex || !s.Value.HasValue) && stripe.Count(s => s.Value == (int)playerIndex) == 2)
-                {
-                    // Get the index of the empty, winning spot
-                    var spot = stripe.First(s => !s.Value.HasValue).Key;
-
-                    rc = new Move { PlayerIndex = playerIndex, Spot = spot };
-                    break;
-                }
-            }
-
-            return rc;
-        }
 
         /// <summary>
         /// Are all spots occupied?

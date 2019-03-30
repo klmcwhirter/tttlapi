@@ -1,12 +1,13 @@
-using Xunit;
+﻿using Xunit;
 using tttlapi.Models;
 using System.Linq;
 using System.Collections.Generic;
 using Xunit.Extensions;
+using tttlapi.Strategies;
 
 namespace tttlapi.Tests
 {
-    public class MoveExtensionsTests
+    public class RulesMoveExtensionsTests
     {
         #region Is_DetectsMoveLocations
 
@@ -52,6 +53,8 @@ namespace tttlapi.Tests
                     new object[] { 0, BoardLocation.Center},
                     new object[] { 4, BoardLocation.Corner},
                     new object[] { 4, BoardLocation.Side},
+                    new object[] { -1, BoardLocation.Side},
+                    new object[] { 99, BoardLocation.Side},
                 };
             }
         }
