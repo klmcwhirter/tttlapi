@@ -17,11 +17,12 @@ namespace tttlapi.Repositories
         /// </summary>
         protected string GamesPrefix = "urn:games";
 
+
         /// <summary>
-        /// The RedisClient needed to interact with the db
+        /// The Redis client needed to interact with the db
         /// </summary>
-        /// <value>IRedisClient</value>
-        public IDatabase RedisClient { get; }
+        /// <value>IDatabase</value>
+        public IDatabase RedisDb { get; }
 
         /// <summary>
         /// Transform JSON to Game
@@ -36,16 +37,16 @@ namespace tttlapi.Repositories
         /// <summary>
         /// Constuct RedisGamesRepository
         /// </summary>
-        /// <param name="redisClient">IRedisClient</param>
+        /// <param name="redisDb">IDatabase</param>
         /// <param name="jsonToGameTransformer"></param>
         /// <param name="jsonFromGameTransformer"></param>
         public StackExchangeRedisGamesRepository(
-            IDatabase redisClient,
+            IDatabase redisDb,
             ITransformer<string, Game> jsonToGameTransformer,
             ITransformer<Game, string> jsonFromGameTransformer
             )
         {
-            RedisClient = redisClient;
+            RedisDb = redisDb;
             JsonToGameTransformer = jsonToGameTransformer;
             JsonFromGameTransformer = jsonFromGameTransformer;
         }
@@ -56,7 +57,7 @@ namespace tttlapi.Repositories
         /// <returns>Game[]</returns>
         public Game[] GetAll()
         {
-            var json = RedisClient.ListRange(GamesPrefix);
+            var json = RedisDb.ListRange(GamesPrefix);
             var rc = json.Select(j => JsonToGameTransformer.Transform(j));
             return rc.ToArray();
         }
@@ -68,7 +69,7 @@ namespace tttlapi.Repositories
         /// <returns>Game</returns>
         public Game Get(int id)
         {
-            var json = RedisClient.ListGetByIndex(GamesPrefix, id);
+            var json = RedisDb.ListGetByIndex(GamesPrefix, id);
             var rc = JsonToGameTransformer.Transform(json);
             return rc;
         }
@@ -80,7 +81,7 @@ namespace tttlapi.Repositories
         /// <returns>Game</returns>
         public Game Start(Player[] players)
         {
-            var id = (int)RedisClient.ListLength(GamesPrefix);
+            var id = (int)RedisDb.ListLength(GamesPrefix);
             var game = new Game
             {
                 Id = id,
@@ -91,7 +92,7 @@ namespace tttlapi.Repositories
             };
 
             var json = JsonFromGameTransformer.Transform(game);
-            RedisClient.ListRightPush($"{GamesPrefix}/{id}", json);
+            RedisDb.ListRightPush(GamesPrefix, json);
 
             return game;
         }
@@ -112,7 +113,7 @@ namespace tttlapi.Repositories
                 game.Complete = true;
 
                 var json = JsonFromGameTransformer.Transform(game);
-                RedisClient.ListRightPush($"{GamesPrefix}/{id}", json);
+                RedisDb.ListSetByIndex(GamesPrefix, id, json);
             }
 
             return game;
@@ -151,7 +152,7 @@ namespace tttlapi.Repositories
             game = game.TryCompleteGame();
 
             var json = JsonFromGameTransformer.Transform(game);
-            RedisClient.ListRightPush($"{GamesPrefix}/{id}", json);
+            RedisDb.ListSetByIndex(GamesPrefix, id, json);
 
             return game;
         }
