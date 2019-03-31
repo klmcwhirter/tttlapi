@@ -4,15 +4,15 @@ using tttlapi.Models;
 namespace tttlapi.Strategies
 {
     /// <summary>
-    /// The strategy a random computer player employs
+    /// The strategy a computer player employs using the minimax algorithm
     /// </summary>
-    public class RandomPlayerStrategy : IPlayerStrategy
+    public class MinimaxPlayerStrategy : IPlayerStrategy
     {
         /// <summary>
         /// User friendly name of the strategy
         /// </summary>
         /// <value>string</value>
-        public string Name { get; } = "Random";
+        public string Name { get; } = "Minimax";
 
         /// <summary>
         /// Seeded instance of Random
@@ -20,7 +20,7 @@ namespace tttlapi.Strategies
         /// <value>Random</value>
         protected static Random Random { get; }
 
-        static RandomPlayerStrategy()
+        static MinimaxPlayerStrategy()
         {
             Random = new Random((int)DateTime.Now.Ticks);
         }
@@ -33,10 +33,11 @@ namespace tttlapi.Strategies
         /// <returns>Move</returns>
         public Move AutomateTurn(PlayerIndex playerIndex, Game game)
         {
+            // TODO: implement usage of trained model
             Move move = null;
 
             // Don't attempt if game is complete
-            if (!game.IsBoardFull())
+            if (!game.Complete)
             {
                 var spot = 0;
                 do

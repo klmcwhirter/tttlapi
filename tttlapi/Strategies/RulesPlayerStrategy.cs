@@ -12,6 +12,12 @@ namespace tttlapi.Strategies
     public class RulesPlayerStrategy : IPlayerStrategy
     {
         /// <summary>
+        /// User friendly name of the strategy
+        /// </summary>
+        /// <value>string</value>
+        public string Name { get; } = "Rules";
+
+        /// <summary>
         /// Ctor for RulesPlayerStrategy
         /// </summary>
         /// <param name="logger"></param>

@@ -8,6 +8,12 @@ namespace tttlapi.Strategies
     public class HumanPlayerStrategy : IPlayerStrategy
     {
         /// <summary>
+        /// User friendly name of the strategy
+        /// </summary>
+        /// <value>string</value>
+        public string Name { get; } = "Human";
+
+        /// <summary>
         /// Automate turn
         /// </summary>
         /// <param name="playerIndex">index of the player in the players array</param>

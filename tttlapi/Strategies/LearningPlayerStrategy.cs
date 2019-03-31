@@ -9,6 +9,12 @@ namespace tttlapi.Strategies
     public class LearningPlayerStrategy : IPlayerStrategy
     {
         /// <summary>
+        /// User friendly name of the strategy
+        /// </summary>
+        /// <value>string</value>
+        public string Name { get; } = "Learning";
+
+        /// <summary>
         /// Seeded instance of Random
         /// </summary>
         /// <value>Random</value>

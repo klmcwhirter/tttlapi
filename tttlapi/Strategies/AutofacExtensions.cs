@@ -18,6 +18,7 @@ namespace tttlapi.Strategies
             builder.RegisterType<HumanPlayerStrategy>().As<IPlayerStrategy>();
             builder.RegisterType<RulesPlayerStrategy>().As<IPlayerStrategy>();
             builder.RegisterType<LearningPlayerStrategy>().As<IPlayerStrategy>();
+            builder.RegisterType<MinimaxPlayerStrategy>().As<IPlayerStrategy>();
             builder.RegisterType<RandomPlayerStrategy>().As<IPlayerStrategy>();
 
             return builder;

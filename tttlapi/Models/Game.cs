@@ -53,32 +53,6 @@ namespace tttlapi.Models
     }
 
     /// <summary>
-    /// The kind of player in the game
-    /// </summary>
-    public enum PlayerKind
-    {
-        /// <summary>
-        /// A Human player
-        /// </summary>
-        Human = 0,
-
-        /// <summary>
-        /// A player using the hard coded rules
-        /// </summary>
-        Rules = 1,
-
-        /// <summary>
-        /// A player using a trained model to determine a piece placement
-        /// </summary>
-        Learning = 2,
-
-        /// <summary>
-        /// A player using a random number generator to determine a piece placement
-        /// </summary>
-        Random = 3
-    }
-
-    /// <summary>
     /// A player in the game
     /// </summary>
     public class Player
@@ -96,10 +70,10 @@ namespace tttlapi.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// The kind of player
+        /// The strategy used for player
         /// </summary>
-        /// <value>PlayerKind</value>
-        public PlayerKind Kind { get; set; }
+        /// <value>string</value>
+        public string Strategy { get; set; }
     }
 
     /// <summary>

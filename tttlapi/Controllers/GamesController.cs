@@ -118,7 +118,7 @@ namespace tttlapi.Controllers
         protected IPlayerStrategy GetStrategy(PlayerIndex playerIndex, Game game)
         {
             var player = game.Players[(int)playerIndex];
-            var strategy = PlayerStrategies[(int)player.Kind];
+            var strategy = PlayerStrategies.FirstOrDefault(s => s.Name == player.Strategy);
             return strategy;
         }
 

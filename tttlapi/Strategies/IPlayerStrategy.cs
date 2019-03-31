@@ -8,6 +8,12 @@ namespace tttlapi.Strategies
     public interface IPlayerStrategy
     {
         /// <summary>
+        /// User friendly name of the strategy
+        /// </summary>
+        /// <value>string</value>
+        string Name { get; }
+
+        /// <summary>
         /// Can the player automate its turn?
         /// </summary>
         /// <returns>bool</returns>
