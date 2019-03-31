@@ -81,7 +81,7 @@ namespace tttlapi
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterRedis(Configuration);
+            builder.RegisterStackExchenageRedis(Configuration);
             builder.RegisterRepositories(Configuration);
             builder.RegisterServices();
             builder.RegisterStrategies();

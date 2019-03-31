@@ -24,7 +24,7 @@ namespace tttlapi.Repositories
             }
             else
             {
-                builder.RegisterType<RedisGamesRepository>().As<IGamesRepository>();
+                builder.RegisterType<StackExchangeRedisGamesRepository>().As<IGamesRepository>();
             }
 
             return builder;

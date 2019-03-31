@@ -1,3 +1,4 @@
+#if SERVICESTACK
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace tttlapi.Repositories
     /// <summary>
     /// Default implementation of the GameRepository
     /// </summary>
-    public class RedisGamesRepository : IGamesRepository
+    public class ServiceStackRedisGamesRepository : IGamesRepository
     {
         /// <summary>
         /// Redis prefix for Games
@@ -40,7 +41,7 @@ namespace tttlapi.Repositories
         /// <param name="redisClient">IRedisClient</param>
         /// <param name="jsonToGameTransformer"></param>
         /// <param name="jsonFromGameTransformer"></param>
-        public RedisGamesRepository(
+        public ServiceStackRedisGamesRepository(
             IRedisClient redisClient,
             ITransformer<string, Game> jsonToGameTransformer,
             ITransformer<Game, string> jsonFromGameTransformer
@@ -158,3 +159,4 @@ namespace tttlapi.Repositories
         }
     }
 }
+#endif

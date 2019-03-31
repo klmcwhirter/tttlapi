@@ -1,3 +1,4 @@
+﻿#if SERVICESTACK
 #pragma warning disable CS1572, CS1573, CS1591
 using Autofac;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +10,7 @@ namespace tttlapi.Utils
     /// <summary>
     /// Extension methods to register this library's types
     /// </summary>
-    public static class AutofacExtensions
+    public static class ServiceStackAutofacExtensions
     {
         /// <summary>
         /// Register the Redis types
@@ -17,7 +18,7 @@ namespace tttlapi.Utils
         /// <param name="builder">ContainerBuilder</param>
         /// <param name="configRoot">IConfigurationRoot</param>
         /// <returns>ContainerBuilder</returns>
-        public static ContainerBuilder RegisterRedis(this ContainerBuilder builder, IConfigurationRoot configRoot)
+        public static ContainerBuilder RegisterServiceStackRedis(this ContainerBuilder builder, IConfigurationRoot configRoot)
         {
             var redisUrl = GetRedisUrl(configRoot);
 
@@ -47,3 +48,4 @@ namespace tttlapi.Utils
         }
     }
 }
+#endif
