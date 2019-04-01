@@ -13,7 +13,8 @@ namespace tttlapi.Controllers
     /// Controller for the games API
     /// </summary>
     [Route("api/v1/games")]
-    public class GamesController : Controller
+    [ApiController]
+    public class GamesController : ControllerBase
     {
         /// <summary>
         /// The repository to use for games storage interaction
@@ -65,7 +66,7 @@ namespace tttlapi.Controllers
         /// <param name="players">Array of the game players</param>
         /// <returns>Game</returns>
         [HttpPost("start")]
-        public Game Start([FromBody]Player[] players)
+        public Game Start(Player[] players)
         {
             var game = GamesRepository.Start(players);
 
@@ -98,7 +99,7 @@ namespace tttlapi.Controllers
         /// <param name="id">Id of the value to patch</param>
         /// <param name="move">the move</param>
         [HttpPatch("{id}/move")]
-        public Game Move(int id, [FromBody]Move move)
+        public Game Move(int id, Move move)
         {
             var game = GamesRepository.RecordMove(id, move);
 

@@ -13,7 +13,8 @@ namespace tttlapi.Controllers
     /// Controller for the Capabilities API
     /// </summary>
     [Route("api/v1/capabilities")]
-    public class CapabilitiesController : Controller
+    [ApiController]
+    public class CapabilitiesController : ControllerBase
     {
         /// <summary>
         /// IPlayerStrategy instances for each PlayerKind
