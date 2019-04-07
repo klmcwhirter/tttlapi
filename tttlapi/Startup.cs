@@ -81,7 +81,14 @@ namespace tttlapi
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterStackExchenageRedis(Configuration);
+            if (Configuration.ShouldUseRedis())
+            {
+                builder.RegisterStackExchenageRedis(Configuration);
+            }
+            else
+            {
+                builder.RegisterMongodb(Configuration);
+            }
             builder.RegisterRepositories(Configuration);
             builder.RegisterServices();
             builder.RegisterStrategies();

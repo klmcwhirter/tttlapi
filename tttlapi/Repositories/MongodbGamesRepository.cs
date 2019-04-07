@@ -1,55 +1,41 @@
-#if SERVICESTACK
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using ServiceStack.Redis;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using tttlapi.Models;
-using tttlapi.Services;
 
 namespace tttlapi.Repositories
 {
-
     /// <summary>
     /// Default implementation of the GameRepository
     /// </summary>
-    public class ServiceStackRedisGamesRepository : IGamesRepository
+    public class MongodbGamesRepository : IGamesRepository
     {
         /// <summary>
-        /// Redis prefix for Games
+        /// Mongo collection for Games
         /// </summary>
-        protected string GamesPrefix = "urn:games";
+        protected string GamesCollectionName = "games";
+
 
         /// <summary>
-        /// The RedisClient needed to interact with the db
+        /// The Mongo client needed to interact with the db
         /// </summary>
-        /// <value>IRedisClient</value>
-        protected IRedisClient RedisClient { get; }
+        /// <value>IMongoDatabase</value>
+        public IMongoDatabase MongoDb { get; }
 
         /// <summary>
-        /// Transform JSON to Game
+        /// The collection containing Games
         /// </summary>
-        protected ITransformer<string, Game> JsonToGameTransformer { get; }
-
-        /// <summary>
-        /// Transform Game to JSON
-        /// </summary>
-        protected ITransformer<Game, string> JsonFromGameTransformer { get; }
+        /// <returns>IMongoCollection&lt;Game&gt;</returns>
+        public IMongoCollection<Game> GamesCollection => MongoDb.GetCollection<Game>(GamesCollectionName);
 
         /// <summary>
         /// Constuct RedisGamesRepository
         /// </summary>
-        /// <param name="redisClient">IRedisClient</param>
-        /// <param name="jsonToGameTransformer"></param>
-        /// <param name="jsonFromGameTransformer"></param>
-        public ServiceStackRedisGamesRepository(
-            IRedisClient redisClient,
-            ITransformer<string, Game> jsonToGameTransformer,
-            ITransformer<Game, string> jsonFromGameTransformer
-            )
+        /// <param name="mongoDb">IMongoDatabase</param>
+        public MongodbGamesRepository(IMongoDatabase mongoDb)
         {
-            RedisClient = redisClient;
-            JsonToGameTransformer = jsonToGameTransformer;
-            JsonFromGameTransformer = jsonFromGameTransformer;
+            MongoDb = mongoDb;
         }
 
         /// <summary>
@@ -58,8 +44,7 @@ namespace tttlapi.Repositories
         /// <returns>Game[]</returns>
         public Game[] GetAll()
         {
-            var json = RedisClient.GetAllItemsFromList(GamesPrefix);
-            var rc = json.Select(j => JsonToGameTransformer.Transform(j));
+            var rc = GamesCollection.AsQueryable();
             return rc.ToArray();
         }
 
@@ -70,8 +55,7 @@ namespace tttlapi.Repositories
         /// <returns>Game</returns>
         public Game Get(int id)
         {
-            var json = RedisClient.GetItemFromList(GamesPrefix, id);
-            var rc = JsonToGameTransformer.Transform(json);
+            var rc = GamesCollection.AsQueryable().FirstOrDefault(g => g.Id == id);
             return rc;
         }
 
@@ -82,18 +66,17 @@ namespace tttlapi.Repositories
         /// <returns>Game</returns>
         public Game Start(Player[] players)
         {
-            var id = (int)RedisClient.GetListCount(GamesPrefix);
+            var id = GamesCollection.CountDocuments(new BsonDocument());
             var game = new Game
             {
-                Id = id,
+                Id = (int)id,
                 Players = players,
                 StartDate = DateTime.Now,
                 Complete = false,
                 Result = GameResult.None
             };
 
-            var json = JsonFromGameTransformer.Transform(game);
-            RedisClient.AddItemToList(GamesPrefix, json);
+            GamesCollection.InsertOne(game);
 
             return game;
         }
@@ -113,8 +96,7 @@ namespace tttlapi.Repositories
                 game.EndDate = DateTime.Now;
                 game.Complete = true;
 
-                var json = JsonFromGameTransformer.Transform(game);
-                RedisClient.SetItemInList(GamesPrefix, id, json);
+                GamesCollection.ReplaceOne(Builders<Game>.Filter.Eq("Id", id), game);
             }
 
             return game;
@@ -152,11 +134,9 @@ namespace tttlapi.Repositories
 
             game = game.TryCompleteGame();
 
-            var json = JsonFromGameTransformer.Transform(game);
-            RedisClient.SetItemInList(GamesPrefix, id, json);
+            GamesCollection.ReplaceOne(Builders<Game>.Filter.Eq("Id", id), game);
 
             return game;
         }
     }
 }
-#endif

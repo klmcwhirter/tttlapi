@@ -31,7 +31,12 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "TTTLAPI_SERVICE_ORIGINS": "http://localhost:4200,http://tttlapi-dev1,http://localhost:8080"
+                "TTTLAPI_SERVICE_ORIGINS": "http://localhost:4200,http://tttlapi-dev1,http://localhost:8080",
+                "MONGODB_USER": "user",
+                "MONGODB_PASSWORD": "userpwd",
+                "MONGODB_SERVICE_HOST": "localhost",
+                "MONGODB_SERVICE_PORT": "27017",
+                "MONGODB_DATABASE": "tttl"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"

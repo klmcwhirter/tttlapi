@@ -17,17 +17,27 @@ namespace tttlapi.Repositories
         /// <returns>ContainerBuilder</returns>
         public static ContainerBuilder RegisterRepositories(this ContainerBuilder builder, IConfigurationRoot configRoot)
         {
-
             if (configRoot.GetValue<string>("TTTLAPI_INMEMORY_REPO") != null)
             {
                 builder.RegisterType<GamesRepository>().As<IGamesRepository>().SingleInstance();
             }
-            else
+            else if (configRoot.ShouldUseRedis())
             {
                 builder.RegisterType<StackExchangeRedisGamesRepository>().As<IGamesRepository>();
+            }
+            else
+            {
+                builder.RegisterType<MongodbGamesRepository>().As<IGamesRepository>();
             }
 
             return builder;
         }
+
+        /// <summary>
+        /// Should this configuration use Redis?
+        /// </summary>
+        /// <param name="configRoot"></param>
+        /// <returns>bool</returns>
+        public static bool ShouldUseRedis(this IConfigurationRoot configRoot) => configRoot.GetValue<string>("TTTLAPI_USE_REDIS") != null;
     }
 }
