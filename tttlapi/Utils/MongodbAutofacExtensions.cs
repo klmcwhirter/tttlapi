@@ -42,8 +42,9 @@ namespace tttlapi.Utils
             var password = password64; // Encoding.UTF8.GetString(Convert.FromBase64String(password64));
             var host = configRoot.GetValue<string>("MONGODB_SERVICE_HOST");
             var port = configRoot.GetValue<string>("MONGODB_SERVICE_PORT");
+            var dbName = configRoot.GetValue<string>("MONGODB_DATABASE");
             var appName = "tttlapi";
-            var rc = $"mongodb://{user}:{password}@{host}:{port}?appName={appName}";
+            var rc = $"mongodb://{user}:{password}@{host}:{port}/{dbName}?appName={appName}";
             return rc;
         }
     }
