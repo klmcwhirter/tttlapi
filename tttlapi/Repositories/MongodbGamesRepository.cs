@@ -60,25 +60,34 @@ namespace tttlapi.Repositories
         }
 
         /// <summary>
+        /// object with which a lock can be requested to serialize the id selection logic
+        /// </summary>
+        /// <returns></returns>
+        protected static object GamesIdLock = new object();
+
+        /// <summary>
         /// Start a game and return it
         /// </summary>
         /// <param name="players">array of game players</param>
         /// <returns>Game</returns>
         public Game Start(Player[] players)
         {
-            var id = GamesCollection.CountDocuments(new BsonDocument());
-            var game = new Game
+            lock (GamesIdLock)
             {
-                Id = (int)id,
-                Players = players,
-                StartDate = DateTime.Now,
-                Complete = false,
-                Result = GameResult.None
-            };
+                var id = GamesCollection.CountDocuments(new BsonDocument());
+                var game = new Game
+                {
+                    Id = (int)id,
+                    Players = players,
+                    StartDate = DateTime.Now,
+                    Complete = false,
+                    Result = GameResult.None
+                };
 
-            GamesCollection.InsertOne(game);
+                GamesCollection.InsertOne(game);
 
-            return game;
+                return game;
+            }
         }
 
         /// <summary>
