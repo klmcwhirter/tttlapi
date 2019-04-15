@@ -144,14 +144,14 @@ namespace tttlapi.Strategies
                 // O If X places first anywhere but center - O places in the center
                 new Rule {
                     Name = "O If X Places anywhere but Center O places in Center",
-                    ShouldTryPlacePiece = (p,g) => !g.PlayerLocationPlacedLast(PlayerIndex.X, BoardLocation.Center) && !g.IsSpotOccupied(4),
+                    ShouldTryPlacePiece = (p,g) => !g.IsSpotOccupied(4),
                     TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Center)
                 },
 
                 // O If X places first in the center - O places a corner; O blocks until tie
                 new Rule {
                     Name = "O If X Places in Center O places in Corner",
-                    ShouldTryPlacePiece = (p,g) => g.PlayerLocationPlacedLast(PlayerIndex.X, BoardLocation.Center) && !g.IsSpotOccupied(4),
+                    ShouldTryPlacePiece = (p,g) => g.IsSpotOccupied(4),
                     TryPlacePiece = (p,g) => g.FindEmptySpot(p, BoardLocation.Corner)
                 },
 
