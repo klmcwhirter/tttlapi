@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace tttlapi.Models
 {
@@ -74,6 +75,17 @@ namespace tttlapi.Models
         /// </summary>
         /// <value>string</value>
         public string Strategy { get; set; }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder("Player {");
+            sb.Append($" Number={Number}, ");
+            sb.Append($" Name={Name}, ");
+            sb.Append($" Strategy={Strategy}");
+            sb.Append(" }");
+
+            return sb.ToString();
+        }
     }
 
     /// <summary>

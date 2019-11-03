@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using tttlapi.Models;
 using tttlapi.Repositories;
 using tttlapi.Strategies;
@@ -26,16 +27,23 @@ namespace tttlapi.Controllers
         /// </summary>
         /// <value>IList&lt;IPlayerStrategy&gt;</value>
         protected IList<IPlayerStrategy> PlayerStrategies { get; }
+        /// <summary>
+        /// ILogger instance through which log entries are written
+        /// </summary>
+        /// <value>ILogger&lt;GamesController&gt;</value>
+        protected ILogger<GamesController> Logger { get; }
 
         /// <summary>
         /// Construct the GamesController
         /// </summary>
         /// <param name="gamesRepository">injected repository</param>
         /// <param name="playerStrategies">instances of PlayerStrategy</param>
-        public GamesController(IGamesRepository gamesRepository, IList<IPlayerStrategy> playerStrategies)
+        /// <param name="logger">instance of ILogger</param>
+        public GamesController(IGamesRepository gamesRepository, IList<IPlayerStrategy> playerStrategies, ILogger<GamesController> logger)
         {
             GamesRepository = gamesRepository;
             PlayerStrategies = playerStrategies;
+            Logger = logger;
         }
 
         /// <summary>
@@ -68,6 +76,8 @@ namespace tttlapi.Controllers
         [HttpPost("start")]
         public Game Start(Player[] players)
         {
+            Logger.LogInformation(players.ToString());
+
             var game = GamesRepository.Start(players);
 
             // Player X goes first
