@@ -147,6 +147,18 @@ namespace tttlapi.Models
     public static class GameExtensions
     {
         /// <summary>
+        /// Map of BoardLocation values to array of spots
+        /// </summary>
+        /// <value></value>
+        public static IDictionary<BoardLocation, int[]> BoardLocationMap = new Dictionary<BoardLocation, int[]>
+        {
+            { BoardLocation.Center, new[] { 4 } },
+            { BoardLocation.Corner, new[] { 0, 2, 6, 8}},
+            { BoardLocation.Side, new[] { 1, 3, 5, 7}},
+            { BoardLocation.Any, Enumerable.Range(0, 9).ToArray() },
+        };
+
+        /// <summary>
         /// The way to win in Tic Tac Toe
         /// </summary>
         /// <value>IEnumerable&lt;int[]&gt;</value>
@@ -165,6 +177,214 @@ namespace tttlapi.Models
             new[] { 0, 4, 8 },
             new[] { 2, 4, 6 }
         };
+
+        #region Game Find helper methods
+
+        /// <summary>
+        /// Find an empty spot at a BoardLocation
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <param name="playerIndex">PlayerIndex</param>
+        /// <param name="location">BoardLocation</param>
+        /// <returns>Move or null</returns>
+        public static Move FindEmptySpot(this Game game, PlayerIndex playerIndex, BoardLocation location)
+        {
+            var spots = BoardLocationMap[location].Shuffle().Where(s => !game.IsSpotOccupied(s));
+
+            var rc = spots.Count() > 0 ? new Move { PlayerIndex = playerIndex, Spot = spots.First() } : null;
+
+            return rc;
+        }
+
+        /// <summary>
+        /// Find a random empty spot
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <param name="playerIndex">PlayerIndex</param>
+        /// <returns>Move or null</returns>
+        public static Move FindRandomEmptySpot(this Game game, PlayerIndex playerIndex)
+        {
+            Move rc = null;
+
+            if (!game.IsBoardFull())
+            {
+                var move = game.FindEmptySpot(playerIndex, BoardLocation.Any);
+
+                rc = move;
+            }
+
+            return rc;
+        }
+
+        /// <summary>
+        /// See if player has a winning move
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <param name="playerIndex">PlayerIndex</param>
+        /// <returns>Move or null</returns>
+        public static Move FindWinningMove(this Game game, PlayerIndex playerIndex)
+        {
+            return game.FindWinningMove(playerIndex, playerIndex);
+        }
+
+        /// <summary>
+        /// See if player has a winning move
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <param name="playerIndex">PlayerIndex</param>
+        /// <param name="returnPlayerIndex">PlayerIndex</param>
+        /// <returns>Move or null</returns>
+        public static Move FindWinningMove(this Game game, PlayerIndex playerIndex, PlayerIndex returnPlayerIndex)
+        {
+            Move rc = null;
+            var striped = new StripedVector<int?>(GameExtensions.WaysToWin, game.ToVector());
+            foreach (var stripe in striped)
+            {
+                // If stripe contains only player or empty AND at least 2 pieces have been placed
+                if (stripe.All(s => s.Value == (int)playerIndex || !s.Value.HasValue) && stripe.Count(s => s.Value == (int)playerIndex) == 2)
+                {
+                    // Get the index of the empty, winning spot
+                    var spot = stripe.First(s => !s.Value.HasValue).Key;
+
+                    rc = new Move { PlayerIndex = returnPlayerIndex, Spot = spot };
+                    break;
+                }
+            }
+
+            return rc;
+        }
+
+        #endregion
+
+        static Random Random { get; } = new Random();
+
+        #region Game helper methods
+
+        /// <summary>
+        /// After O places in the center, ... Move selection logic
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <param name="playerIndex">PlayerIndex (always PlayerIndex.X)</param>
+        /// <returns>Move</returns>
+        public static Move AfterOPlacesCenter(this Game game, PlayerIndex playerIndex)
+        {
+            Move rc = null;
+
+            if (game.OPlacedCenter())
+            {
+                // TODO - Should be opposite corner
+                rc = game.FindEmptySpot(playerIndex, BoardLocation.Corner);
+            }
+            else if (game.OPlacedCenterPreviously())
+            {
+                if (game.PlayerLocationPlacedLast(PlayerIndex.O, BoardLocation.Corner))
+                {
+                    rc = game.FindEmptySpot(playerIndex, BoardLocation.Corner);
+                }
+                else if (game.PlayerLocationPlacedLast(PlayerIndex.O, BoardLocation.Side))
+                {
+                    rc = game.FindRandomEmptySpot(playerIndex);
+                }
+            }
+
+            return rc;
+        }
+
+        /// <summary>
+        /// Detect location PlayerIndex placed last was BoardLocation
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <param name="playerIndex">PlayerIndex</param>
+        /// <param name="location">BoardLocation</param>
+        /// <returns>bool</returns>
+        public static bool PlayerLocationPlacedLast(this Game game, PlayerIndex playerIndex, BoardLocation location)
+        {
+            var rc = game.Moves.LastOrDefault(m => m.PlayerIndex == playerIndex)?.Is(location) ?? false;
+            return rc;
+        }
+
+        /// <summary>
+        /// Detect location PlayerIndex placed previously was BoardLocation
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <param name="playerIndex">PlayerIndex</param>
+        /// <param name="location">BoardLocation</param>
+        /// <returns>bool</returns>
+        public static bool PlayerLocationPlacedPreviously(this Game game, PlayerIndex playerIndex, BoardLocation location)
+        {
+            var rc = game.Moves
+                    .Where(m => m.PlayerIndex == playerIndex)
+                    .Reverse()
+                    .Take(2) // Last 2 moves
+                    .Reverse()
+                    .FirstOrDefault()? // Just the previous move
+                    .Is(location) ?? false;
+            return rc;
+        }
+
+        /// <summary>
+        /// Detect if O placed Center
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <returns>bool</returns>
+        public static bool OPlacedCenter(this Game game) => game.PlayerLocationPlacedLast(PlayerIndex.O, BoardLocation.Center);
+
+        /// <summary>
+        /// Detect if O placed in Center previously
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <returns>bool</returns>
+        public static bool OPlacedCenterPreviously(this Game game) => game.PlayerLocationPlacedPreviously(PlayerIndex.O, BoardLocation.Center);
+
+        /// <summary>
+        /// Detect if should use the If O places center ... rule
+        /// </summary>
+        /// <param name="game">Game</param>
+        /// <returns>bool</returns>
+        public static bool IfOPlacedCenterThen(this Game game) => game.OPlacedCenter() || game.OPlacedCenterPreviously();
+
+        #endregion
+
+        /// <summary>
+        /// Is the current spot in this Move instance at BoardLocation
+        /// </summary>
+        /// <param name="move"></param>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        public static bool Is(this Move move, BoardLocation location)
+        {
+            var rc = BoardLocationMap[location].Contains(move.Spot);
+            return rc;
+        }
+
+        /// <summary>
+        /// Helper predicate to search for a spot in one of the BoardLocationMap arrays
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="spot"></param>
+        /// <returns></returns>
+        public static BoardLocation MapContainsSpot(this BoardLocation location, int spot)
+        {
+            if (BoardLocationMap[location].Any(i => i == spot))
+            {
+                return location;
+            }
+
+            return BoardLocation.Any;
+        }
+
+        /// <summary>
+        /// Given a board spot, find its board location
+        /// </summary>
+        /// <param name="spot"></param>
+        /// <returns></returns>
+        public static BoardLocation ToBoardLocation(this int spot)
+        {
+            var rc = BoardLocation.Center.MapContainsSpot(spot);
+            if (rc == BoardLocation.Any) rc = BoardLocation.Corner.MapContainsSpot(spot);
+            if (rc == BoardLocation.Any) rc = BoardLocation.Side.MapContainsSpot(spot);
+            return rc;
+        }
 
         /// <summary>
         /// Are all spots occupied?

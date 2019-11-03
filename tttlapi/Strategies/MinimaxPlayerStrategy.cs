@@ -39,16 +39,22 @@ namespace tttlapi.Strategies
             // Don't attempt if game is complete
             if (!game.Complete)
             {
-                var spot = 0;
+                int? spot = 0;
                 do
                 {
-                    spot = Random.Next(9);
-                } while (game.IsSpotOccupied(spot));
+                    // Try to find a winning placement
+                    var location = game.FindWinningMove(playerIndex);
+                    spot = location?.Spot;
+                    if(!spot.HasValue)
+                    {
+                        spot = Random.Next(9);
+                    }
+                } while (game.IsSpotOccupied(spot.Value));
 
                 move = new Move
                 {
                     PlayerIndex = playerIndex,
-                    Spot = spot
+                    Spot = spot.Value
                 };
             }
 
