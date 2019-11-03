@@ -1,8 +1,8 @@
 ﻿#pragma warning disable CS1572, CS1573, CS1591
 using Autofac;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Configuration;
 
 namespace tttlapi.Utils
 {
@@ -17,13 +17,16 @@ namespace tttlapi.Utils
         /// <param name="builder">ContainerBuilder</param>
         /// <param name="configRoot">IConfigurationRoot</param>
         /// <returns>ContainerBuilder</returns>
-        public static ContainerBuilder RegisterMongodb(this ContainerBuilder builder, IConfigurationRoot configRoot)
+        public static ContainerBuilder RegisterMongodb(this ContainerBuilder builder, IConfigurationRoot configRoot, ILogger logger)
         {
             var config = GetMongodbConfiguration(configRoot);
+            logger.LogInformation(config);
 
             builder.Register<IMongoDatabase>(c =>
             {
                 var dbName = configRoot.GetValue<string>("MONGODB_DATABASE");
+                logger.LogInformation(dbName);
+
                 var db = new MongoClient(config).GetDatabase(dbName);
                 return db;
             }).As<IMongoDatabase>();

@@ -87,7 +87,7 @@ namespace tttlapi
             }
             else
             {
-                builder.RegisterMongodb(Configuration);
+                builder.RegisterMongodb(Configuration, Logger);
             }
             builder.RegisterRepositories(Configuration);
             builder.RegisterServices();
