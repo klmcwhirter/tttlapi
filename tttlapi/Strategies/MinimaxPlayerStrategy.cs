@@ -39,13 +39,21 @@ namespace tttlapi.Strategies
             // Don't attempt if game is complete
             if (!game.Complete)
             {
-                int? spot = 0;
+                int? spot = null;
                 do
                 {
                     // Try to find a winning placement
                     var location = game.FindWinningMove(playerIndex);
                     spot = location?.Spot;
-                    if(!spot.HasValue)
+
+                    if (!spot.HasValue)
+                    {
+                        // Try to find a blocking placement
+                        location = game.FindWinningMove(1 - playerIndex, playerIndex);
+                        spot = location?.Spot;
+                    }
+
+                    if (!spot.HasValue)
                     {
                         spot = Random.Next(9);
                     }
